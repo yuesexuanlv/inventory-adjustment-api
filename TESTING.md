@@ -15,7 +15,7 @@ php artisan key:generate
 php artisan test
 ```
 
-You should see **15 passed** in under a second. That covers all 13 scenarios below automatically.
+You should see **13 passed** in under a second. That covers all 13 scenarios below automatically.
 
 ---
 
