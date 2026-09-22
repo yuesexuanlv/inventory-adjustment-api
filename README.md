@@ -26,10 +26,10 @@ composer install
 cp .env.example .env
 php artisan key:generate
 
-# 3. Create SQLite database file (Linux/macOS)
+# 3. Create SQLite database file
+# Linux / macOS:
 touch database/database.sqlite
-
-# 3. Create SQLite database file (Windows)
+# Windows (PowerShell / CMD):
 # type nul > database\database.sqlite
 
 # 4. Run migrations and seed demo data
@@ -44,7 +44,7 @@ php artisan serve
 
 The API will be available at `http://127.0.0.1:8000`.
 
-> **Quick verification:** `php artisan test` runs all 10 tests in under a second against an in-memory database — no HTTP server required. See [TESTING.md](TESTING.md).
+> **Quick verification:** `php artisan test` runs the full suite in under a second against an in-memory database — no HTTP server required. See [TESTING.md](TESTING.md).
 
 ---
 
@@ -139,7 +139,7 @@ curl http://127.0.0.1:8000/api/inventory-adjustments/1
 | warehouses | 主仓库 (MAIN), 副仓库 (SECOND) |
 | products | 矿泉水550ml, 红烧牛肉面 |
 | batches | B20260922-001 (qty 100), B20260922-002 (qty 50) |
-| adjustment_reasons | 4 active + 1 inactive (expired_demo) |
+| adjustment_reasons | 4 active inventory reasons + 1 inactive + 1 active-but-other-applies-to (price_adjust) |
 
 Use batch_id=1 and reason_id=1 to reproduce the "100 -> 92" example.
 
@@ -160,7 +160,7 @@ Example 422:
 
 ```json
 {
-  "message": "The selected adjustment reason id is invalid.",
+  "message": "The selected reason is not active or not valid for inventory adjustments.",
   "errors": {
     "adjustment_reason_id": ["The selected reason is not active or not valid for inventory adjustments."]
   }
