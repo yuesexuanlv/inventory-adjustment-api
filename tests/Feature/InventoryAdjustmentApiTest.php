@@ -54,6 +54,13 @@ class InventoryAdjustmentApiTest extends TestCase
             'is_active'  => false,
             'applies_to' => AdjustmentReason::APPLIES_TO_INVENTORY_ADJUSTMENT,
         ]);
+
+        $this->wrongAppliesToReason = AdjustmentReason::create([
+            'name'       => 'Price adjust',
+            'code'       => 'price_adjust',
+            'is_active'  => true,
+            'applies_to' => 'price_adjustment',
+        ]);
     }
 
     public function test_lists_active_reasons_only(): void
@@ -181,6 +188,78 @@ class InventoryAdjustmentApiTest extends TestCase
             ->assertJsonPath('data.batch.batch_no', 'B-001')
             ->assertJsonPath('data.batch.product.sku', 'SKU-WATER')
             ->assertJsonPath('data.batch.warehouse.code', 'MAIN')
+            ->assertJsonPath('data.reason.code', 'physical_count');
+    }
+
+    public function test_rejects_reason_with_wrong_applies_to(): void
+    {
+        $response = $this->postJson('/api/inventory-adjustments', [
+            'batch_id'             => $this->batch2->id,
+            'adjustment_reason_id' => $this->wrongAppliesToReason->id,
+            'new_quantity'         => 40,
+        ]);
+
+        $response->assertStatus(422);
+
+        // batch 2 unchanged
+        $this->assertDatabaseHas('batches', [
+            'id'               => $this->batch2->id,
+            'current_quantity' => 50,
+        ]);
+    }
+
+    public function test_re_adjust_reads_current_quantity_as_old(): void
+    {
+        // First adjustment: 100 -> 92
+        $this->postJson('/api/inventory-adjustments', [
+            'batch_id'             => $this->batch->id,
+            'adjustment_reason_id' => $this->activeReason->id,
+            'new_quantity'         => 92,
+        ])->assertStatus(201);
+
+        // Second adjustment: 92 -> 90 (old must be 92, not 100)
+        $response = $this->postJson('/api/inventory-adjustments', [
+            'batch_id'             => $this->batch->id,
+            'adjustment_reason_id' => $this->activeReason->id,
+            'new_quantity'         => 90,
+        ]);
+
+        $response->assertStatus(201)
+            ->assertJsonPath('data.old_quantity', 92)
+            ->assertJsonPath('data.new_quantity', 90)
+            ->assertJsonPath('data.quantity_diff', -2);
+
+        $this->assertDatabaseHas('batches', [
+            'id'               => $this->batch->id,
+            'current_quantity' => 90,
+        ]);
+    }
+
+    public function test_rejects_non_integer_quantity(): void
+    {
+        $response = $this->postJson('/api/inventory-adjustments', [
+            'batch_id'             => $this->batch2->id,
+            'adjustment_reason_id' => $this->activeReason->id,
+            'new_quantity'         => 'abc',
+        ]);
+
+        $response->assertStatus(422);
+    }
+
+    public function test_history_still_readable_when_reason_later_deactivated(): void
+    {
+        $adjustmentId = $this->postJson('/api/inventory-adjustments', [
+            'batch_id'             => $this->batch->id,
+            'adjustment_reason_id' => $this->activeReason->id,
+            'new_quantity'         => 90,
+        ])->json('data.id');
+
+        // Deactivate the reason after the adjustment was created
+        $this->activeReason->update(['is_active' => false]);
+
+        // History record must still be readable
+        $response = $this->getJson("/api/inventory-adjustments/{$adjustmentId}");
+        $response->assertOk()
             ->assertJsonPath('data.reason.code', 'physical_count');
     }
 }
