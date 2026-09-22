@@ -41,6 +41,8 @@ php artisan serve
 
 The API will be available at `http://127.0.0.1:8000`.
 
+> **New here?** See [TESTING.md](TESTING.md) for a step-by-step guide with copy-paste commands and expected outputs.
+
 ---
 
 ## API Endpoints
