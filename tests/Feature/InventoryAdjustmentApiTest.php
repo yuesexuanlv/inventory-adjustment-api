@@ -145,6 +145,21 @@ class InventoryAdjustmentApiTest extends TestCase
         $response->assertStatus(422);
     }
 
+    public function test_allows_zero_diff_when_count_matches(): void
+    {
+        $response = $this->postJson('/api/inventory-adjustments', [
+            'batch_id'             => $this->batch->id,
+            'adjustment_reason_id' => $this->activeReason->id,
+            'new_quantity'         => 100,
+            'note'                 => 'physical count matches system, no change',
+        ]);
+
+        $response->assertStatus(201)
+            ->assertJsonPath('data.old_quantity', 100)
+            ->assertJsonPath('data.new_quantity', 100)
+            ->assertJsonPath('data.quantity_diff', 0);
+    }
+
     public function test_returns_404_for_nonexistent_adjustment(): void
     {
         $response = $this->getJson('/api/inventory-adjustments/9999');

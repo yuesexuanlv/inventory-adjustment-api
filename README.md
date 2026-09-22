@@ -95,6 +95,8 @@ curl -X POST http://127.0.0.1:8000/api/inventory-adjustments \
 | `new_quantity` | integer | yes | New quantity, must be >= 0 |
 | `note` | string | no | Free-text note, max 1000 chars |
 
+> `quantity_diff = new_quantity - old_quantity`. Negative means stock decreased (e.g. -8 means 8 fewer items). It is always calculated server-side; the client never sends it.
+
 **Response (201):**
 
 ```json
@@ -191,7 +193,6 @@ Intentionally **not** included (out of scope for this demo):
 - **No update/delete on adjustments** — inventory adjustments are immutable audit records. If a mistake is made, create a new reversing adjustment.
 - **No authentication / authorization** — outside the task scope.
 - **No pagination** — reason list is small.
-- **No tests** — manual curl verification covers the required scenarios.
 
 ---
 
