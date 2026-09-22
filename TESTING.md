@@ -15,7 +15,7 @@ php artisan key:generate
 php artisan test
 ```
 
-You should see **13 passed** in under a second. That covers all 13 scenarios below automatically.
+You should see **14 passed** in under a second. That covers all 14 scenarios below automatically.
 
 ---
 
@@ -129,6 +129,22 @@ curl -i -X POST http://127.0.0.1:8000/api/inventory-adjustments -H "Content-Type
 
 ```json
 {"message":"The selected batch id is invalid.","errors":{"batch_id":["The selected batch id is invalid."]}}
+```
+
+---
+
+### Scenario 5b — Non-existent reason is rejected
+
+Use `adjustment_reason_id=999`:
+
+```bash
+curl -i -X POST http://127.0.0.1:8000/api/inventory-adjustments -H "Content-Type: application/json" -d '{"batch_id":2,"adjustment_reason_id":999,"new_quantity":40}'
+```
+
+**Actual response (HTTP 422):**
+
+```json
+{"message":"The selected adjustment reason id is invalid.","errors":{"adjustment_reason_id":["The selected adjustment reason id is invalid."]}}
 ```
 
 ---

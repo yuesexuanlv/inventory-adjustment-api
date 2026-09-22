@@ -131,6 +131,23 @@ class InventoryAdjustmentApiTest extends TestCase
         $response->assertStatus(422);
     }
 
+    public function test_rejects_nonexistent_reason_with_422(): void
+    {
+        $response = $this->postJson('/api/inventory-adjustments', [
+            'batch_id'             => $this->batch2->id,
+            'adjustment_reason_id' => 9999,
+            'new_quantity'         => 40,
+        ]);
+
+        $response->assertStatus(422);
+
+        // batch 2 unchanged
+        $this->assertDatabaseHas('batches', [
+            'id'               => $this->batch2->id,
+            'current_quantity' => 50,
+        ]);
+    }
+
     public function test_rejects_negative_quantity_with_422(): void
     {
         $response = $this->postJson('/api/inventory-adjustments', [

@@ -152,8 +152,9 @@ Uses Laravel default format.
 | Scenario | Status |
 |---|---|
 | Validation failed (missing/invalid field) | 422 |
+| Batch ID not found | 422 |
+| Reason ID not found | 422 |
 | Reason not active or not applicable | 422 |
-| Batch not found (route model binding) | 404 |
 | Adjustment not found | 404 |
 
 Example 422:
