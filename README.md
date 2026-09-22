@@ -35,13 +35,16 @@ touch database/database.sqlite
 # 4. Run migrations and seed demo data
 php artisan migrate:fresh --seed
 
-# 5. Start the dev server
+# 5. Run the test suite (no server needed)
+php artisan test
+
+# 6. Start the dev server (optional, for manual exploration)
 php artisan serve
 ```
 
 The API will be available at `http://127.0.0.1:8000`.
 
-> **New here?** See [TESTING.md](TESTING.md) for a step-by-step guide with copy-paste commands and expected outputs.
+> **Quick verification:** `php artisan test` runs all 10 tests in under a second against an in-memory database — no HTTP server required. See [TESTING.md](TESTING.md).
 
 ---
 
