@@ -260,11 +260,11 @@ Content-Type: application/json
 
 ```json
 {
-    "message": "No query results for model [App\\Models\\InventoryAdjustment] 999"
+    "message": "Record not found."
 }
 ```
 
-Clean JSON, no stack trace (`APP_DEBUG=false`).
+Clean JSON, no stack trace or internal class names (`APP_DEBUG=false`).
 
 ---
 
